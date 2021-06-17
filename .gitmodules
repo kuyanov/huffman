@@ -1,0 +1,6 @@
+[submodule "googletest"]
+	path = googletest
+	url = https://github.com/google/googletest
+[submodule "gflags"]
+	path = gflags
+	url = https://github.com/gflags/gflags
