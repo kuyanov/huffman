@@ -1,10 +1,8 @@
 #include "Huffman.h"
 
 #include <array>
-#include <istream>
 #include <memory>
 #include <optional>
-#include <ostream>
 #include <queue>
 #include <utility>
 #include <vector>
@@ -27,7 +25,7 @@ class DecodeInputException: std::exception {};
 
 struct Node {
     std::shared_ptr<Node> left = nullptr, right = nullptr;
-    unsigned char c;
+    unsigned char c = 0;
 };
 
 template <typename T>
@@ -50,7 +48,7 @@ private:
     int buffer_pos = 0;
 
 public:
-    BinaryWriter(std::ostream *_out): out(_out) {}
+    explicit BinaryWriter(std::ostream *_out): out(_out) {}
 
     void flush() {
         if (buffer_pos > 0) {
@@ -79,7 +77,7 @@ private:
     int buffer_pos = 0;
 
 public:
-    BinaryReader(std::istream *_in): in(_in) {}
+    explicit BinaryReader(std::istream *_in): in(_in) {}
 
     bool read() {
         if (buffer_pos == 0) {
@@ -130,7 +128,7 @@ std::shared_ptr<Node> build_trie_by_freq(const Freq &freq) {
     return q.top().second;
 }
 
-void calculate_codes(std::shared_ptr<Node> root, std::vector<bool> &code, Codes &codes) {
+void calculate_codes(const std::shared_ptr<Node>& root, std::vector<bool> &code, Codes &codes) {
     if (root == nullptr) {
         return;
     }
@@ -254,7 +252,7 @@ std::shared_ptr<Node> build_trie_by_codes(const Codes &codes) {
     return root;
 }
 
-void decode_input(std::istream *in, std::ostream *out, std::shared_ptr<Node> root) {
+void decode_input(std::istream *in, std::ostream *out, const std::shared_ptr<Node>& root) {
     size_t sz;
     Deserialize(sz, in);
     if (in->fail()) {
