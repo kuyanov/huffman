@@ -39,7 +39,7 @@ RU: https://ru.wikipedia.org/wiki/%D0%9A%D0%BE%D0%B4_%D0%A5%D0%B0%D1%84%D1%84%D0
    `cd path/to/your/project`
 1. Скачайте репозиторий командой:
 
-   `git clone https://github.com/kuyanov/archiver.git`
+   `git clone https://github.com/kuyanov/Archiver.git`
   
 
 ### Сборка проекта
