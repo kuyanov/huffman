@@ -31,6 +31,10 @@
 *.out
 *.app
 
-# Build
-build/
-cmake-build-debug/
+# Build files
+build
+cmake-build-*
+
+# Configuration files
+.idea
+.vscode
