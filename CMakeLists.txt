@@ -1,11 +1,13 @@
 cmake_minimum_required(VERSION 3.10)
 project(Huffman)
 
+set(CMAKE_CXX_STANDARD 17)
+
+set(CMAKE_CXX_FLAGS_ASAN "-g -fsanitize=address,undefined -fno-sanitize-recover=all")
+
 add_subdirectory(gflags)
 add_subdirectory(tests)
 add_subdirectory(lib)
-
-set(CMAKE_CXX_STANDARD 17)
 
 add_executable(Huffman main.cpp )
 target_link_libraries(Huffman gflags::gflags HuffmanLibrary)
