@@ -1,6 +1,7 @@
 #include "Huffman.h"
 
 #include <array>
+#include <exception>
 #include <memory>
 #include <optional>
 #include <queue>
@@ -20,8 +21,8 @@ enum Error {
     MALFORMED_DATA,
 };
 
-class ReadCodingTableException: std::exception {};
-class DecodeInputException: std::exception {};
+class ReadCodingTableException: public std::exception {};
+class DecodeInputException: public std::exception {};
 
 struct Node {
     std::shared_ptr<Node> left = nullptr, right = nullptr;
@@ -109,8 +110,8 @@ std::shared_ptr<Node> build_trie_by_freq(const Freq &freq) {
             continue;
         }
         auto leaf = std::make_shared<Node>();
-        leaf->c = i;
-        q.emplace(-freq[i], leaf);
+        leaf->c = (unsigned char)i;
+        q.emplace(-(long long)freq[i], leaf);
     }
     if (q.empty()) {
         return nullptr;
@@ -133,7 +134,7 @@ void calculate_codes(const std::shared_ptr<Node>& root, std::vector<bool> &code,
         return;
     }
     if (root->left == nullptr && root->right == nullptr) {
-        codes[root->c] = code;
+        codes[root->c] = std::make_optional(code);
         return;
     }
     code.push_back(false);
@@ -155,7 +156,7 @@ void write_coding_table(const Codes &codes, std::ostream *out) {
         if (!codes[i].has_value()) {
             continue;
         }
-        unsigned char c = i;
+        unsigned char c = (unsigned char)i;
         const auto &code = codes[i].value();
         Serialize(c, out);
         Serialize(code.size(), out);
@@ -247,7 +248,7 @@ std::shared_ptr<Node> build_trie_by_codes(const Codes &codes) {
                 cur = cur->right;
             }
         }
-        cur->c = i;
+        cur->c = (unsigned char)i;
     }
     return root;
 }
