@@ -21,27 +21,30 @@ enum Error {
     MALFORMED_DATA,
 };
 
-class ReadCodingTableException: public std::exception {};
-class DecodeInputException: public std::exception {};
+class ReadCodingTableException : public std::exception {
+};
+
+class DecodeInputException : public std::exception {
+};
 
 struct Node {
     std::shared_ptr<Node> left = nullptr, right = nullptr;
     unsigned char c = 0;
 };
 
-template <typename T>
-std::ostream* Serialize(const T &x, std::ostream *out) {
-    out->write(reinterpret_cast<const char*>(&x), sizeof(x));
+template<typename T>
+std::ostream *Serialize(const T &x, std::ostream *out) {
+    out->write(reinterpret_cast<const char *>(&x), sizeof(x));
     return out;
 }
 
-template <typename T>
-std::istream* Deserialize(T &x, std::istream *in) {
-    in->read(reinterpret_cast<char*>(&x), sizeof(x));
+template<typename T>
+std::istream *Deserialize(T &x, std::istream *in) {
+    in->read(reinterpret_cast<char *>(&x), sizeof(x));
     return in;
 }
 
-template <typename Buffer>
+template<typename Buffer>
 class BinaryWriter {
 private:
     std::ostream *out;
@@ -49,7 +52,7 @@ private:
     int buffer_pos = 0;
 
 public:
-    explicit BinaryWriter(std::ostream *_out): out(_out) {}
+    explicit BinaryWriter(std::ostream *_out) : out(_out) {}
 
     void flush() {
         if (buffer_pos > 0) {
@@ -70,7 +73,7 @@ public:
     }
 };
 
-template <typename Buffer>
+template<typename Buffer>
 class BinaryReader {
 private:
     std::istream *in;
@@ -78,7 +81,7 @@ private:
     int buffer_pos = 0;
 
 public:
-    explicit BinaryReader(std::istream *_in): in(_in) {}
+    explicit BinaryReader(std::istream *_in) : in(_in) {}
 
     bool read() {
         if (buffer_pos == 0) {
@@ -110,8 +113,8 @@ std::shared_ptr<Node> build_trie_by_freq(const Freq &freq) {
             continue;
         }
         auto leaf = std::make_shared<Node>();
-        leaf->c = (unsigned char)i;
-        q.emplace(-(long long)freq[i], leaf);
+        leaf->c = (unsigned char) i;
+        q.emplace(-(long long) freq[i], leaf);
     }
     if (q.empty()) {
         return nullptr;
@@ -129,7 +132,7 @@ std::shared_ptr<Node> build_trie_by_freq(const Freq &freq) {
     return q.top().second;
 }
 
-void calculate_codes(const std::shared_ptr<Node>& root, std::vector<bool> &code, Codes &codes) {
+void calculate_codes(const std::shared_ptr<Node> &root, std::vector<bool> &code, Codes &codes) {
     if (root == nullptr) {
         return;
     }
@@ -156,12 +159,12 @@ void write_coding_table(const Codes &codes, std::ostream *out) {
         if (!codes[i].has_value()) {
             continue;
         }
-        unsigned char c = (unsigned char)i;
+        auto c = (unsigned char) i;
         const auto &code = codes[i].value();
         Serialize(c, out);
         Serialize(code.size(), out);
         BinaryWriter<uint8_t> writer(out);
-        for (bool bit : code) {
+        for (bool bit: code) {
             writer.write(bit);
         }
         writer.flush();
@@ -173,7 +176,7 @@ void encode_input(std::istream *in, std::ostream *out, size_t sz, const Codes &c
     BinaryWriter<uint64_t> writer(out);
     unsigned char c;
     while (!Deserialize(c, in)->fail()) {
-        for (bool bit : codes[c].value()) {
+        for (bool bit: codes[c].value()) {
             writer.write(bit);
         }
     }
@@ -235,7 +238,7 @@ std::shared_ptr<Node> build_trie_by_codes(const Codes &codes) {
             continue;
         }
         auto cur = root;
-        for (bool bit : codes[i].value()) {
+        for (bool bit: codes[i].value()) {
             if (!bit) {
                 if (cur->left == nullptr) {
                     cur->left = std::make_shared<Node>();
@@ -248,12 +251,12 @@ std::shared_ptr<Node> build_trie_by_codes(const Codes &codes) {
                 cur = cur->right;
             }
         }
-        cur->c = (unsigned char)i;
+        cur->c = (unsigned char) i;
     }
     return root;
 }
 
-void decode_input(std::istream *in, std::ostream *out, const std::shared_ptr<Node>& root) {
+void decode_input(std::istream *in, std::ostream *out, const std::shared_ptr<Node> &root) {
     size_t sz;
     Deserialize(sz, in);
     if (in->fail()) {
@@ -291,9 +294,9 @@ int Arch::decompress(std::istream *in, std::ostream *out) {
         read_coding_table(in, codes);
         auto root = build_trie_by_codes(codes);
         decode_input(in, out, root);
-    } catch(const ReadCodingTableException&) {
+    } catch (const ReadCodingTableException &) {
         return Error::MALFORMED_HEADER;
-    } catch(const DecodeInputException&) {
+    } catch (const DecodeInputException &) {
         return Error::MALFORMED_DATA;
     }
 
